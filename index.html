@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎯 技能卡小測驗｜判斷失智症四大類型</title>
+  <style>
+    :root {
+      --bg-cream: #fdf8ee;
+      --card-bg: #ffffff;
+      --border-warm: #eadbc0;
+      --text-main: #4a3f35;
+      --text-sub: #7a6b5d;
+      --accent-gold: #e8a838;
+      --accent-gold-bg: #fff6e0;
+      --sage-green: #5b8c6a;
+      --sage-bg: #eef6f0;
+      --rose-soft: #d96b6b;
+      --rose-bg: #fdf0f0;
+      --shadow: 0 8px 24px rgba(105, 82, 52, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+      background: linear-gradient(145deg, #fdf8ee 0%, #f3f7f2 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+      line-height: 1.6;
+    }
+
+    .widget-container {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border: 2px solid var(--border-warm);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* 頂部標題區 */
+    .header {
+      background: linear-gradient(135deg, #fff4d6 0%, #eaf4ec 100%);
+      padding: 18px 20px 14px;
+      border-bottom: 1.5px solid var(--border-warm);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #ffffffcc;
+      border: 1px solid var(--border-warm);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #8a5a19;
+    }
+
+    .cheat-btn {
+      background: #ffffff;
+      border: 1.5px solid #d7c39d;
+      color: #6b5335;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cheat-btn:hover {
+      background: #fff9ec;
+      border-color: var(--accent-gold);
+    }
+
+    .header h1 {
+      font-size: 19px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .motto {
+      font-size: 13px;
+      color: #8a5a19;
+      background: rgba(255, 255, 255, 0.72);
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    /* 小抄提示抽屜 */
+    .cheat-sheet {
+      display: none;
+      background: #fffdf8;
+      border-bottom: 1.5px dashed var(--border-warm);
+      padding: 12px 18px;
+      font-size: 13px;
+    }
+
+    .cheat-sheet.open {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 440px) {
+      .cheat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cheat-item {
+      background: #ffffff;
+      border: 1px solid #efe3cc;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+    }
+
+    .cheat-item b {
+      display: block;
+      margin-bottom: 2px;
+      color: #5a4632;
+    }
+
+    /* 主內容區 */
+    .body-area {
+      padding: 18px 20px 22px;
+    }
+
+    /* 進度條 */
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #f2eadc;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #e8a838, #6da87e);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    /* 題目卡片 */
+    .scenario-box {
+      background: #fffaf0;
+      border: 1.5px solid #f0dfc0;
+      border-radius: 14px;
+      padding: 15px 16px;
+      margin-bottom: 14px;
+    }
+
+    .scenario-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #a66d1c;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .scenario-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* 四個選項按鈕 */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 440px) {
+      .options {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .opt-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      background: #ffffff;
+      border: 2px solid #e7dcc8;
+      border-radius: 13px;
+      padding: 11px 13px;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: inherit;
+    }
+
+    .opt-btn:hover:not(:disabled) {
+      border-color: var(--accent-gold);
+      background: #fffaf0;
+      transform: translateY(-1px);
+    }
+
+    .opt-btn:disabled {
+      cursor: default;
+    }
+
+    .opt-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .opt-sub {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-sub);
+    }
+
+    .opt-btn.correct {
+      border-color: var(--sage-green);
+      background: var(--sage-bg);
+      color: #2d593a;
+    }
+
+    .opt-btn.wrong {
+      border-color: var(--rose-soft);
+      background: var(--rose-bg);
+      color: #8f3232;
+    }
+
+    .opt-btn.dimmed {
+      opacity: 0.55;
+    }
+
+    /* 即時回饋區 */
+    .feedback {
+      display: none;
+      margin-top: 14px;
+      border-radius: 13px;
+      padding: 13px 15px;
+      font-size: 14px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.is-correct {
+      background: var(--sage-bg);
+      border: 1.5px solid #b5d6be;
+      color: #2c5237;
+    }
+
+    .feedback.is-wrong {
+      background: #fff5f5;
+      border: 1.5px solid #ecc0c0;
+      color: #7d2f2f;
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .tip-pill {
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .next-btn, .restart-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e8a838, #d99126);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(217, 145, 38, 0.25);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .next-btn:hover, .restart-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.96;
+    }
+
+    /* 結算畫面 */
+    .result-area {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .result-area.show {
+      display: block;
+    }
+
+    .result-emoji {
+      font-size: 46px;
+      margin-bottom: 6px;
+    }
+
+    .result-score {
+      font-size: 26px;
+      font-weight: 800;
+      color: #8a5a19;
+      margin-bottom: 4px;
+    }
+
+    .result-msg {
+      font-size: 14.5px;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+    }
+
+    .summary-list {
+      text-align: left;
+      background: #fffaf0;
+      border: 1.5px solid var(--border-warm);
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .summary-list h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #6b5335;
+    }
+
+    .summary-row {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eadbc0;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .red-flag {
+      text-align: left;
+      background: #fff4f2;
+      border: 1.5px solid #f2c4bc;
+      border-radius: 12px;
+      padding: 10px 13px;
+      font-size: 12.5px;
+      color: #8a2c22;
+      margin-top: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="header">
+      <div class="header-top">
+        <span class="badge">🎯 技能卡互動測驗</span>
+        <button class="cheat-btn" id="toggleCheatBtn" type="button">💡 偷看提示小抄</button>
+      </div>
+      <h1>認識失智症四大類型｜快問快答</h1>
+      <div class="motto">「他不是故意找碴，是大腦生病了。」</div>
+    </div>
+
+    <div class="cheat-sheet" id="cheatSheet">
+      <div><b>📌 四大類型一眼記重點：</b></div>
+      <div class="cheat-grid">
+        <div class="cheat-item"><b>🧹 阿茲海默症</b>剛吃過就忘、重複提問、傍晚吵著要回家。</div>
+        <div class="cheat-item"><b>📉 血管型失智症</b>中風相關、步驟卡關、走路不穩、喝水易嗆咳。</div>
+        <div class="cheat-item"><b>👻 路易氏體失智症</b>逼真視幻覺、精神忽好忽壞、對鎮靜藥敏感。</div>
+        <div class="cheat-item"><b>🚦 額顳葉型失智症</b>性格大變沒煞車、固執、愛吃甜食與衝動搶食。</div>
+      </div>
+    </div>
+
+    <div class="body-area">
+      <div id="quizArea">
+        <div class="progress-row">
+          <span id="progressText">第 1 / 8 題</span>
+          <span id="scoreText">目前答對：0 題</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="scenario-box">
+          <div class="scenario-label">👀 情境觀察題</div>
+          <div class="scenario-text" id="questionText">載入題目中...</div>
+        </div>
+
+        <div class="options" id="optionsBox"></div>
+
+        <div class="feedback" id="feedbackBox">
+          <div class="feedback-title" id="feedbackTitle"></div>
+          <div id="feedbackDesc"></div>
+          <div class="tip-pill" id="feedbackTip"></div>
+          <button class="next-btn" id="nextBtn" type="button">下一題 ➡️</button>
+        </div>
+      </div>
+
+      <div class="result-area" id="resultArea">
+        <div class="result-emoji" id="resultEmoji">🌟</div>
+        <div class="result-score" id="resultScore">8 / 8 題</div>
+        <div class="result-msg" id="resultMsg"></div>
+
+        <div class="summary-list">
+          <h3>📝 本次練習重點回顧</h3>
+          <div id="reviewList"></div>
+        </div>
+
+        <div class="red-flag">
+          <b>🚨 重要安全提醒（急性譫妄紅旗）：</b><br />
+          失智症通常是「慢慢退化」；如果長者在<b>幾小時或幾天內突然意識混亂、發燒、嗜睡或劇烈惡化</b>，請立刻就醫檢查是否為急性譫妄或感染！
+        </div>
+
+        <button class="restart-btn" id="restartBtn" type="button">🔄 再測驗一次（題目隨機洗牌）</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TYPES = [
+      { id: "ad", name: "阿茲海默症", icon: "🧹", sub: "近期記憶流失" },
+      { id: "vd", name: "血管型失智症", icon: "📉", sub: "步驟卡關／防嗆咳" },
+      { id: "dlb", name: "路易氏體失智症", icon: "👻", sub: "視幻覺／步態防跌" },
+      { id: "ftd", name: "額顳葉型失智症", icon: "🚦", sub: "性格煞車失靈" }
+    ];
+
+    const QUESTIONS = [
+      {
+        q: "阿嬤剛吃完午餐才過 10 分鐘，又跑來問：「怎麼還沒開飯？我餓好久了！」",
+        answer: "ad",
+        explain: "阿茲海默症最早退化的是「近期記憶」，就像黑板剛寫上去就被擦掉，但長者真的忘記自己吃過了。",
+        tip: "💡 簡單處理：不爭辯「你剛吃過了」，改用少量多餐＋餐後桌面小提示卡溫和安撫。"
+      },
+      {
+        q: "阿公喝水時常常嗆到咳嗽、說話聲音聽起來濕濕的，而且看著桌上筷子和湯匙發呆，不知道要先拿哪一個。",
+        answer: "vd",
+        explain: "血管型失智症常與腦中風有關，容易出現「步驟卡關（執行功能下降）」與早期的吞嚥嗆咳風險。",
+        tip: "💡 簡單處理：一次只端一道菜與一支湯匙，坐直 90 度慢食；嗆咳時先暫停進食並請專業人員評估。"
+      },
+      {
+        q: "阿公下午突然指著暗暗的窗簾角落，緊張地說：「那裡有兩個陌生小孩在看我！」",
+        answer: "dlb",
+        explain: "看到栩栩如生的「視幻覺」是路易氏體失智症最具代表性的特徵，常在光線不足或有陰影時出現。",
+        tip: "💡 簡單處理：不爭辯真假，先安撫「我陪你看看」，同時把室內燈光開亮、消除陰影。"
+      },
+      {
+        q: "原本客氣有禮的阿嬤最近突然變得講話很直、不看場合，吃飯時還會狼吞虎嚥一口氣往嘴裡狂塞。",
+        answer: "ftd",
+        explain: "額顳葉型失智症影響負責「禮貌與衝動煞車」的額葉，早期記憶不一定差，但性格與飲食衝動會明顯改變。",
+        tip: "💡 簡單處理：責備說教無效，改用「小碟子分次給餐」防噎食，並清空桌面非食物雜物。"
+      },
+      {
+        q: "一到傍晚天色變暗，阿嬤就開始焦急地打包衣服，一直說：「我要回以前的老家煮飯給媽媽吃！」",
+        answer: "ad",
+        explain: "這是阿茲海默症常見的「黃昏症候群」與時空迷航，長者會回到過去的記憶時空裡。",
+        tip: "💡 簡單處理：順應他的時空先同理安撫（例如「先喝杯溫水休息一下再出發」），白天多曬太陽能改善。"
+      },
+      {
+        q: "阿公以前會自己扣鈕扣穿衣服，最近中風後變得動作很慢、穿衣順序老是搞混，走路也有點小碎步。",
+        answer: "vd",
+        explain: "腦中風或腦血管病變後的階梯式功能下降，常表現為動作變慢、步驟順序混亂與步態不穩。",
+        tip: "💡 簡單處理：把指令拆成「一次一個步驟」並用動作示範，同時控制血壓、血糖預防再次中風。"
+      },
+      {
+        q: "阿公早上還能清楚聊天，下午卻突然發呆嗜睡、身體僵硬容易跌倒，家人發現他對某些鎮靜藥物反應特別大。",
+        answer: "dlb",
+        explain: "白天精神像坐雲霄飛車（波動性認知）、肢體僵硬防跌，以及對傳統鎮靜抗精神病藥物極度敏感，都是路易氏體的重要警訊。",
+        tip: "💡 簡單處理：保持走道淨空防跌倒，用藥務必由醫師審慎評估，切勿自行給鎮靜藥。"
+      },
+      {
+        q: "阿公每天堅持同一時間一定要走同一條路、吃同一種甜食，只要稍微被打斷就會非常固執生氣。",
+        answer: "ftd",
+        explain: "固定刻板的重複行為、極度嗜甜以及難以溝通轉彎，是額顳葉型失智症常見的行為表現。",
+        tip: "💡 簡單處理：順著他的固定作息來安排日常，用視覺提示或溫和引導代替硬碰硬說道理。"
+      }
+    ];
+
+    let shuffled = [];
+    let currentIndex = 0;
+    let score = 0;
+    let records = [];
+
+    const cheatBtn = document.getElementById("toggleCheatBtn");
+    const cheatSheet = document.getElementById("cheatSheet");
+    const quizArea = document.getElementById("quizArea");
+    const resultArea = document.getElementById("resultArea");
+    const progressText = document.getElementById("progressText");
+    const scoreText = document.getElementById("scoreText");
+    const progressFill = document.getElementById("progressFill");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("optionsBox");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const feedbackTitle = document.getElementById("feedbackTitle");
+    const feedbackDesc = document.getElementById("feedbackDesc");
+    const feedbackTip = document.getElementById("feedbackTip");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    cheatBtn.addEventListener("click", () => {
+      const isOpen = cheatSheet.classList.toggle("open");
+      cheatBtn.textContent = isOpen ? "🙈 收起小抄" : "💡 偷看提示小抄";
+    });
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz() {
+      shuffled = shuffleArray(QUESTIONS);
+      currentIndex = 0;
+      score = 0;
+      records = [];
+      quizArea.style.display = "block";
+      resultArea.classList.remove("show");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const item = shuffled[currentIndex];
+      progressText.textContent = `第 ${currentIndex + 1} / ${shuffled.length} 題`;
+      scoreText.textContent = `目前答對：${score} 題`;
+      progressFill.style.width = `${((currentIndex) / shuffled.length) * 100}%`;
+      questionText.textContent = item.q;
+
+      feedbackBox.className = "feedback";
+      optionsBox.innerHTML = "";
+
+      TYPES.forEach(t => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "opt-btn";
+        btn.dataset.type = t.id;
+        btn.innerHTML = `
+          <span class="opt-icon">${t.icon}</span>
+          <span>
+            ${t.name}
+            <span class="opt-sub">${t.sub}</span>
+          </span>
+        `;
+        btn.addEventListener("click", () => handleAnswer(t.id));
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedId) {
+      const item = shuffled[currentIndex];
+      const isCorrect = selectedId === item.answer;
+      const correctType = TYPES.find(t => t.id === item.answer);
+
+      if (isCorrect) score++;
+      scoreText.textContent = `目前答對：${score} 題`;
+      progressFill.style.width = `${((currentIndex + 1) / shuffled.length) * 100}%`;
+
+      records.push({
+        q: item.q,
+        correctName: `${correctType.icon} ${correctType.name}`,
+        isCorrect
+      });
+
+      const btns = optionsBox.querySelectorAll(".opt-btn");
+      btns.forEach(btn => {
+        btn.disabled = true;
+        const id = btn.dataset.type;
+        if (id === item.answer) {
+          btn.classList.add("correct");
+        } else if (id === selectedId && !isCorrect) {
+          btn.classList.add("wrong");
+        } else {
+          btn.classList.add("dimmed");
+        }
+      });
+
+      feedbackBox.className = `feedback show ${isCorrect ? "is-correct" : "is-wrong"}`;
+      feedbackTitle.textContent = isCorrect
+        ? `✅ 答對了！這就是【${correctType.icon} ${correctType.name}】`
+        : `💛 沒關係！這題是【${correctType.icon} ${correctType.name}】`;
+      feedbackDesc.textContent = item.explain;
+      feedbackTip.textContent = item.tip;
+
+      nextBtn.textContent = currentIndex === shuffled.length - 1 ? "查看測驗結果 🎉" : "下一題 ➡️";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentIndex++;
+      if (currentIndex < shuffled.length) {
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      quizArea.style.display = "none";
+      resultArea.classList.add("show");
+
+      document.getElementById("resultScore").textContent = `${score} / ${shuffled.length} 題`;
+
+      let emoji = "💛";
+      let msg = "多練習幾次，很快就能一眼認出不同類型的照顧重點囉！";
+      if (score === shuffled.length) {
+        emoji = "🏆";
+        msg = "太厲害了！滿分通關，四大失智類型的特徵與應對你都掌握了！";
+      } else if (score >= 6) {
+        emoji = "🌟";
+        msg = "表現超棒！你已經很會觀察長者的行為線索囉！";
+      }
+
+      document.getElementById("resultEmoji").textContent = emoji;
+      document.getElementById("resultMsg").textContent = msg;
+
+      const reviewList = document.getElementById("reviewList");
+      reviewList.innerHTML = records.map((r, idx) => `
+        <div class="summary-row">
+          <b>${r.isCorrect ? "✅" : "📌"} 第 ${idx + 1} 題：${r.correctName}</b><br />
+          <span style="color:#6f6255;">${r.q}</span>
+        </div>
+      `).join("");
+    }
+
+    restartBtn.addEventListener("click", startQuiz);
+
+    startQuiz();
+  </script>
+</body>
+</html>
