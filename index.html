@@ -408,9 +408,32 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .warm-note {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.78);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #confettiCanvas { display: none; }
+    }
   </style>
 </head>
 <body>
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
   <div class="widget-container">
     <div class="header">
       <div class="header-top">
@@ -607,6 +630,61 @@
       });
     }
 
+    const PRAISE_NOTES = [
+      "🌟 太棒了！你觀察長者線索的敏銳度超強！",
+      "💛 答對了！這份細心就是陪伴長者最好的力量！",
+      "✨ 很讚喔！又成功分辨出一個失智類型的關鍵特徵！",
+      "🌸 拍拍手！照護新手村又順利往前邁進一大步！"
+    ];
+    const ENCOURAGE_NOTES = [
+      "🌱 沒關係！每次答錯都是幫大腦多記住一個重要線索，繼續加油～",
+      "💛 別氣餒！失智類型本來就容易混淆，多看一次印象就更深刻囉！",
+      "🍀 很棒的嘗試！記住這個小提示，下一題一定難不倒你！"
+    ];
+
+    function launchSoftConfetti() {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const canvas = document.getElementById("confettiCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ["#F2C14E", "#7BB28E", "#E899A8", "#8AB6D6", "#F4A261", "#FFF3B0"];
+      const pieces = Array.from({ length: 42 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -12 - Math.random() * 60,
+        w: 6 + Math.random() * 5,
+        h: 8 + Math.random() * 6,
+        vx: (Math.random() - 0.5) * 2.4,
+        vy: 2.2 + Math.random() * 2.6,
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.16,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 0.92
+      }));
+      const start = performance.now();
+      function frame(now) {
+        const elapsed = now - start;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const fade = elapsed > 1000 ? Math.max(0, 1 - (elapsed - 1000) / 500) : 1;
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vRot;
+          ctx.save();
+          ctx.globalAlpha = p.alpha * fade;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (elapsed < 1500) requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      requestAnimationFrame(frame);
+    }
+
     function handleAnswer(selectedId) {
       const item = shuffled[currentIndex];
       const isCorrect = selectedId === item.answer;
@@ -636,11 +714,15 @@
       });
 
       feedbackBox.className = `feedback show ${isCorrect ? "is-correct" : "is-wrong"}`;
+      const note = isCorrect
+        ? PRAISE_NOTES[Math.floor(Math.random() * PRAISE_NOTES.length)]
+        : ENCOURAGE_NOTES[Math.floor(Math.random() * ENCOURAGE_NOTES.length)];
       feedbackTitle.textContent = isCorrect
         ? `✅ 答對了！這就是【${correctType.icon} ${correctType.name}】`
         : `💛 沒關係！這題是【${correctType.icon} ${correctType.name}】`;
-      feedbackDesc.textContent = item.explain;
+      feedbackDesc.innerHTML = `${item.explain}<div class="warm-note">${note}</div>`;
       feedbackTip.textContent = item.tip;
+      if (isCorrect) launchSoftConfetti();
 
       nextBtn.textContent = currentIndex === shuffled.length - 1 ? "查看測驗結果 🎉" : "下一題 ➡️";
     }
